@@ -16,7 +16,7 @@ import {
 import { publicProvider } from 'wagmi/providers/public';
 
 import '@rainbow-me/rainbowkit/styles.css';
-import { getDefaultWallets, RainbowKitProvider } from '@rainbow-me/rainbowkit';
+import { ConnectButton, getDefaultWallets, RainbowKitProvider, darkTheme } from '@rainbow-me/rainbowkit';
 
 import { useIsMounted } from '../hooks';
 
@@ -43,7 +43,7 @@ const App = ({ Component, pageProps }: AppProps) => {
   if (!isMounted) return null;
   return (
     <WagmiConfig client={wagmiClient}>
-      <RainbowKitProvider coolMode chains={chains}>
+      <RainbowKitProvider theme={darkTheme()} chains={chains}>
         <NextHead>
           <title>create-web3</title>
         </NextHead>
