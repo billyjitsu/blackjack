@@ -4,7 +4,15 @@ pragma solidity ^0.8.18;
 contract Blackjack {
     // game structure
 
+    struct Card {
+        uint8 cardNumber;
+        uint8 cardValue;
+        string cardSuit;
+    }
+
+    uint8[13] cardNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
     uint8[13] cardValues = [11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10];
+    string[4] cardSuits = ["clubs", "diamonds", "hearts", "spades"];
 
     uint256 playersCard1;
     uint256 playersCard2;
@@ -28,6 +36,17 @@ contract Blackjack {
 
         //give the option to bet
         //deal the cards
+    }
+
+    function generateDeck() private {
+        Card[] private cards;
+        for (i in cardNumbers) {
+            uint8 cardValue = cardValues[i];
+            for (j in cardSuits) {
+            cards.push(i, cardValue, j);
+            };
+        };
+        return cards;
     }
 
     function dealCards() public {
