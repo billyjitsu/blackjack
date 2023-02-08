@@ -38,14 +38,16 @@ contract Blackjack {
         //deal the cards
     }
 
-    function generateDeck() private {
-        Card[] private cards;
-        for (i in cardNumbers) {
+    function generateDeck() private returns (Card[] memory){
+        Card [] memory cards;
+
+        for (uint256 i = 0; i > cardNumbers[i]; ++i) {
             uint8 cardValue = cardValues[i];
-            for (j in cardSuits) {
-            cards.push(i, cardValue, j);
-            };
-        };
+
+              //  for (uint256 j = 0; j > cardSuits[j]; ++j) {
+                   // cards.push(i, cardValue, j);
+              //  }
+        }
         return cards;
     }
 
@@ -66,10 +68,7 @@ contract Blackjack {
     function generateRandomNumber() public returns (uint256) {
         //chainlink or api3
         uint256 randomnumber = uint256(
-            keccak256(
-                abi.encodePacked(block.timestamp, block.difficulty, msg.sender)
-            )
-        ) % 13;
+            keccak256(abi.encodePacked(block.timestamp, /*block.difficulty*/ block.prevrandao , msg.sender))) % 13;
         return randomnumber;
     }
 
