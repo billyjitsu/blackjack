@@ -38,6 +38,17 @@ contract Blackjack {
         //deal the cards
     }
 
+    function generateDeck() private {
+        Card[] private cards;
+        for (i in cardNumbers) {
+            uint8 cardValue = cardValues[i];
+            for (j in cardSuits) {
+            cards.push(i, cardValue, j);
+            };
+        };
+        return cards;
+    }
+
     function dealCards() public {
         // shuffle the deck - clears out booleans
         // deal 2 cards to each player
