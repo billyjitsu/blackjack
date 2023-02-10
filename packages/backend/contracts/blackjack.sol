@@ -13,6 +13,8 @@ contract Blackjack is Ownable {
         string cardSuit;
     }
 
+    uint256 private seed;
+
     Card[] public cards;
 
     uint8[13] cardNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
@@ -41,7 +43,7 @@ contract Blackjack is Ownable {
             msg.value >= _betAmount,
             "Bet amount must be equal to msg.value"
         );
-        generateDeck();
+       // generateDeck();
         dealCards();
 
         //give the option to bet
@@ -49,8 +51,8 @@ contract Blackjack is Ownable {
     }
 
     function generateDeck() private {
-        for (uint256 i = 0; i > cardNumbers.length; ++i) {
-            for (uint256 j = 0; j > cardSuits.length; ++j) {
+        for (uint256 i = 0; i < cardNumbers.length; ++i) {
+            for (uint256 j = 0; j < cardSuits.length; ++j) {
                 Card memory card = Card({
                     cardNumber: cardNumbers[i],
                     cardValue: cardValues[i],
@@ -66,13 +68,13 @@ contract Blackjack is Ownable {
         // shuffle the deck - clears out booleans
         // deal 2 cards to each player
         // generate random number
-        playersCard1 = cards[uint8(generateRandomNumber() % 13)];
-        console.log("playersCard1", playersCard1.cardValue);
-        playersCard2 = cards[uint8(generateRandomNumber() % 13)];
+        playersCard1 = cards[uint8(generateRandomNumber() % 51)];
+        console.log("playersCard1", playersCard1.cardNumber);
+        playersCard2 = cards[uint8(generateRandomNumber() % 51)];
         console.log("playersCard2", playersCard2.cardNumber);
         // deal 1 card to the dealer (top card)
-        dealersCard1 = cards[uint8(generateRandomNumber() % 13)];
-        console.log("dealersCard1", dealersCard1.cardSuit);
+        dealersCard1 = cards[uint8(generateRandomNumber() % 51)];
+        console.log("dealersCard1", dealersCard1.cardNumber);
 
         // check for blackjack
         //check for splits
@@ -81,6 +83,7 @@ contract Blackjack is Ownable {
 
     function generateRandomNumber() public returns (uint256) {
         //chainlink or api3
+        seed = (block.prevrandao + seed) % 77 ;
         uint256 randomnumber = uint256(
             keccak256(
                 abi.encodePacked(
@@ -90,14 +93,21 @@ contract Blackjack is Ownable {
                     msg.sender
                 )
             )
-        ) % 13;
+        ) + seed % 13;
         return randomnumber;
     }
 
     // hit or stand
     function hit() public {
-        playersCard3 = cards[uint8(generateRandomNumber() % 13)];
+        
+        playersCard3 = cards[uint8(generateRandomNumber() % 51)];
+
+        if(playersCard3.cardNumber > 0){
+            playersCard4 = cards[uint8(generateRandomNumber() % 51)];
+        }
         //check for bust
+        bool checker = checkForBust();
+        console.log("checker", checker);
         //check for win
 
         //option to hit again or stand
@@ -109,7 +119,17 @@ contract Blackjack is Ownable {
     // dealer can hit or stand (dealer must hit on 16 or less)
     // event for every hit
 
-    function checkForBust() public {}
+    function checkForBust() public returns (bool) {
+            uint8 sum = 0;
+        for (uint8 i = 0; i < 4; ++i) {
+            Card[] memory temp =  playerHand();
+            sum += temp[i].cardNumber;
+            console.log("sum", sum);
+            if (sum > 21) {
+                return true;
+            }else false;
+        }
+    }
 
     function checkForWin() public {}
 
@@ -118,6 +138,21 @@ contract Blackjack is Ownable {
     //payout the winner or keep funds in pot
 
     //withdrawing funds for owner
+
+    function playerHand() public view returns (Card[] memory) {
+        Card[] memory playerHand = new Card[] (4);
+        playerHand[0] = playersCard1;
+        playerHand[1] = playersCard2;
+        playerHand[2] = playersCard3;
+        playerHand[3] = playersCard4;
+        return playerHand;
+    }
+
+    function dealerHand() public view returns (Card[] memory) {
+        Card[] memory dealerHand = new Card[](1);
+        dealerHand[0] = dealersCard1;
+        return dealerHand;
+    }
 
     /* Logic issues */
 

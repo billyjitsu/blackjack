@@ -32,4 +32,32 @@ describe("BlackJack", function () {
     });
   });
 
+  describe("Play", function () {
+    it("Deal Cards", async function () {
+      const { blackjack, owner } = await loadFixture(beforeEachFunction);
+     
+      await blackjack.bet(2, { value: ethers.utils.parseEther("2") });
+      
+
+      let playerHand = await blackjack.playerHand();
+      console.log("playerHand: " , playerHand)
+
+      let dealerHand = await blackjack.dealerHand();
+    //  console.log("dealerHand: " , dealerHand)
+
+      await blackjack.hit();
+      await blackjack.hit();
+      playerHand = await blackjack.playerHand();
+      console.log("playerHand: " , playerHand)
+      // let playerHandValue = await blackjack.playerHandValue();
+      // let dealerHandValue = await blackjack.dealerHandValue();
+      // let playerHandCount = await blackjack.playerHandCount();
+      // let dealerHandCount = await blackjack.dealerHandCount();
+      // let playerHandAceCount = await blackjack.playerHandAceCount();
+      // let dealerHandAceCount = await blackjack.dealerHandAceCount();
+
+
+    });
+  });
+
 });
