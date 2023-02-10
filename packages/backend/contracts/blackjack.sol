@@ -1,7 +1,10 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-contract Blackjack {
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "hardhat/console.sol";
+
+contract Blackjack is Ownable {
     // game structure
 
     struct Card {
@@ -10,16 +13,22 @@ contract Blackjack {
         string cardSuit;
     }
 
+    Card[] public cards;
+
     uint8[13] cardNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
     uint8[13] cardValues = [11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10];
     string[4] cardSuits = ["clubs", "diamonds", "hearts", "spades"];
 
-    uint256 playersCard1;
-    uint256 playersCard2;
-    uint256 playersCard3;
-    uint256 playersCard4;
-    uint256 playersCard5;
-    uint256 dealersCard1;
+    Card playersCard1;
+    Card playersCard2;
+    Card playersCard3;
+    Card playersCard4;
+    Card playersCard5;
+    Card dealersCard1;
+
+    constructor() {
+        generateDeck();
+    }
 
     //start a game - front end
     // iniiliaze the deck/wallets
@@ -32,33 +41,38 @@ contract Blackjack {
             msg.value >= _betAmount,
             "Bet amount must be equal to msg.value"
         );
+        generateDeck();
         dealCards();
 
         //give the option to bet
         //deal the cards
     }
 
-    function generateDeck() private returns (Card[] memory){
-        Card [] memory cards;
+    function generateDeck() private {
+        for (uint256 i = 0; i > cardNumbers.length; ++i) {
+            for (uint256 j = 0; j > cardSuits.length; ++j) {
+                Card memory card = Card({
+                    cardNumber: cardNumbers[i],
+                    cardValue: cardValues[i],
+                    cardSuit: cardSuits[j]
+                });
 
-        for (uint256 i = 0; i > cardNumbers[i]; ++i) {
-            uint8 cardValue = cardValues[i];
-
-              //  for (uint256 j = 0; j > cardSuits[j]; ++j) {
-                   // cards.push(i, cardValue, j);
-              //  }
+                cards.push(card);
+            }
         }
-        return cards;
     }
 
     function dealCards() public {
         // shuffle the deck - clears out booleans
         // deal 2 cards to each player
         // generate random number
-        playersCard1 = cardValues[generateRandomNumber() % 13];
-        playersCard2 = cardValues[generateRandomNumber() % 13];
+        playersCard1 = cards[uint8(generateRandomNumber() % 13)];
+        console.log("playersCard1", playersCard1.cardValue);
+        playersCard2 = cards[uint8(generateRandomNumber() % 13)];
+        console.log("playersCard2", playersCard2.cardNumber);
         // deal 1 card to the dealer (top card)
-        dealersCard1 = cardValues[generateRandomNumber() % 13];
+        dealersCard1 = cards[uint8(generateRandomNumber() % 13)];
+        console.log("dealersCard1", dealersCard1.cardSuit);
 
         // check for blackjack
         //check for splits
@@ -68,13 +82,21 @@ contract Blackjack {
     function generateRandomNumber() public returns (uint256) {
         //chainlink or api3
         uint256 randomnumber = uint256(
-            keccak256(abi.encodePacked(block.timestamp, /*block.difficulty*/ block.prevrandao , msg.sender))) % 13;
+            keccak256(
+                abi.encodePacked(
+                    block.timestamp,
+                    /*block.difficulty*/
+                    block.prevrandao,
+                    msg.sender
+                )
+            )
+        ) % 13;
         return randomnumber;
     }
 
     // hit or stand
     function hit() public {
-        playersCard3 = cardValues[generateRandomNumber() % 13];
+        playersCard3 = cards[uint8(generateRandomNumber() % 13)];
         //check for bust
         //check for win
 
