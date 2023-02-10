@@ -17,9 +17,13 @@ contract Blackjack is Ownable {
 
     Card[] public cards;
 
+    Card[] public gameDeck;
+
     uint8[13] cardNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
     uint8[13] cardValues = [11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10];
     string[4] cardSuits = ["clubs", "diamonds", "hearts", "spades"];
+
+    event Status(string _message);
 
     Card playersCard1;
     Card playersCard2;
@@ -43,7 +47,7 @@ contract Blackjack is Ownable {
             msg.value >= _betAmount,
             "Bet amount must be equal to msg.value"
         );
-       // generateDeck();
+        // generateDeck();
         dealCards();
 
         //give the option to bet
@@ -64,10 +68,16 @@ contract Blackjack is Ownable {
         }
     }
 
+    // cards
+    // gameDeck -> copy of cards
+    // deal -> selects from gameDeck and removes the selected
+    // hit -> selects from gameDeck and removes the selected
+
     function dealCards() public {
         // shuffle the deck - clears out booleans
         // deal 2 cards to each player
         // generate random number
+        gameDeck = cards;
         playersCard1 = cards[uint8(generateRandomNumber() % 51)];
         console.log("playersCard1", playersCard1.cardNumber);
         playersCard2 = cards[uint8(generateRandomNumber() % 51)];
@@ -83,7 +93,7 @@ contract Blackjack is Ownable {
 
     function generateRandomNumber() public returns (uint256) {
         //chainlink or api3
-        seed = (block.prevrandao + seed) % 77 ;
+        seed = (block.prevrandao + seed) % 77;
         uint256 randomnumber = uint256(
             keccak256(
                 abi.encodePacked(
@@ -93,20 +103,22 @@ contract Blackjack is Ownable {
                     msg.sender
                 )
             )
-        ) + seed % 13;
+        ) + (seed % 13);
         return randomnumber;
     }
 
     // hit or stand
     function hit() public {
-        
         playersCard3 = cards[uint8(generateRandomNumber() % 51)];
-
-        if(playersCard3.cardNumber > 0){
+        if (playersCard3.cardNumber > 0) {
             playersCard4 = cards[uint8(generateRandomNumber() % 51)];
         }
         //check for bust
         bool checker = checkForBust();
+        if (checker) {
+            console.log("Busted");
+            // emit event and game stops
+        }
         console.log("checker", checker);
         //check for win
 
@@ -120,14 +132,14 @@ contract Blackjack is Ownable {
     // event for every hit
 
     function checkForBust() public returns (bool) {
-            uint8 sum = 0;
+        uint8 sum = 0;
         for (uint8 i = 0; i < 4; ++i) {
-            Card[] memory temp =  playerHand();
+            Card[] memory temp = playerHand();
             sum += temp[i].cardNumber;
             console.log("sum", sum);
             if (sum > 21) {
                 return true;
-            }else false;
+            } else false;
         }
     }
 
@@ -135,12 +147,13 @@ contract Blackjack is Ownable {
 
     // see who wins
     function claimWin() public {}
+
     //payout the winner or keep funds in pot
 
     //withdrawing funds for owner
 
     function playerHand() public view returns (Card[] memory) {
-        Card[] memory playerHand = new Card[] (4);
+        Card[] memory playerHand = new Card[](4);
         playerHand[0] = playersCard1;
         playerHand[1] = playersCard2;
         playerHand[2] = playersCard3;
