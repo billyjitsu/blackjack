@@ -15,9 +15,13 @@ contract Blackjack is Ownable {
 
     uint256 private seed;
 
-    Card[] public cards;
+    // Card[] public cards;
 
-    Card[] public gameDeck;
+    // Card[] public gameDeck;
+
+    Card[] public usedCards;
+
+    uint8[] public usedCardsList;
 
     uint8[13] cardNumbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
     uint8[13] cardValues = [11, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10];
@@ -33,7 +37,7 @@ contract Blackjack is Ownable {
     Card dealersCard1;
 
     constructor() {
-        generateDeck();
+        // generateDeck();
     }
 
     //start a game - front end
@@ -54,37 +58,117 @@ contract Blackjack is Ownable {
         //deal the cards
     }
 
-    function generateDeck() private {
-        for (uint256 i = 0; i < cardNumbers.length; ++i) {
-            for (uint256 j = 0; j < cardSuits.length; ++j) {
-                Card memory card = Card({
-                    cardNumber: cardNumbers[i],
-                    cardValue: cardValues[i],
-                    cardSuit: cardSuits[j]
-                });
+    // function generateDeck() private {
+    //     for (uint256 i = 0; i < cardNumbers.length; ++i) {
+    //         for (uint256 j = 0; j < cardSuits.length; ++j) {
+    //             Card memory card = Card({
+    //                 cardNumber: cardNumbers[i],
+    //                 cardValue: cardValues[i],
+    //                 cardSuit: cardSuits[j]
+    //             });
 
-                cards.push(card);
-            }
-        }
-    }
+    //             cards.push(card);
+    //         }
+    //     }
+    // }
 
     // cards
     // gameDeck -> copy of cards
     // deal -> selects from gameDeck and removes the selected
     // hit -> selects from gameDeck and removes the selected
+    // function removeCard(uint256 index) public {
+    //     console.log(
+    //         "cards[index]",
+    //         cards[index].cardNumber,
+    //         cards[index].cardValue,
+    //         cards[index].cardSuit
+    //     );
+    //     console.log(
+    //         "cards[cards.length - 1]",
+    //         cards[cards.length - 1].cardNumber,
+    //         cards[cards.length - 1].cardValue,
+    //         cards[cards.length - 1].cardSuit
+    //     );
+    //     for (uint256 i = index; i < cards.length - 1; i++) {
+    //         cards[i] = cards[i + 1];
+    //         //cards[index] = cards[cards.length - 1]; // take the card to be deleted to the last spot
+    //         console.log(
+    //             "after adjusment cards[index]",
+    //             cards[index].cardNumber,
+    //             cards[index].cardValue,
+    //             cards[index].cardSuit
+    //         );
+    //         console.log(
+    //             "cards[cards.length - 1]",
+    //             cards[cards.length - 1].cardNumber,
+    //             cards[cards.length - 1].cardValue,
+    //             cards[cards.length - 1].cardSuit
+    //         );
+    //     }
+    //     cards.pop();
+    // }
+
+    function getCard() public returns (Card memory) {
+        uint8 randomNum = uint8(generateRandomNumber() % 51);
+        console.log("Used cards List length", usedCardsList.length);
+        if (usedCardsList.length == 0) {
+            usedCardsList.push(randomNum);
+            console.log("Used cards List length renewed", usedCardsList.length);
+        } else {
+            for (uint8 i = 0; i < usedCardsList.length; ++i) {
+                console.log(
+                    "============================Index Numbers:",
+                    i,
+                    randomNum,
+                    usedCardsList.length
+                );
+                if (randomNum == usedCardsList[i]) {
+                    console.log("Number already in use");
+                    randomNum += 1;
+                }
+            }
+            usedCardsList.push(randomNum);
+        }
+        Card memory card = Card({
+            cardNumber: cardNumbers[randomNum % 12],
+            cardValue: cardValues[randomNum % 12],
+            cardSuit: cardSuits[randomNum % 3]
+        });
+        usedCards.push(card);
+        return card;
+    }
 
     function dealCards() public {
         // shuffle the deck - clears out booleans
         // deal 2 cards to each player
         // generate random number
-        gameDeck = cards;
-        playersCard1 = cards[uint8(generateRandomNumber() % 51)];
-        console.log("playersCard1", playersCard1.cardNumber);
-        playersCard2 = cards[uint8(generateRandomNumber() % 51)];
-        console.log("playersCard2", playersCard2.cardNumber);
+        // gameDeck = cards;
+
+        playersCard1 = getCard();
+        console.log(
+            "playersCard1",
+            playersCard1.cardNumber,
+            playersCard1.cardValue,
+            playersCard1.cardSuit
+        );
+        // console.log("usedCardsList", usedCardsList[0]);
+
+        playersCard2 = getCard();
+        console.log(
+            "playersCard2",
+            playersCard2.cardNumber,
+            playersCard2.cardValue,
+            playersCard2.cardSuit
+        );
+
         // deal 1 card to the dealer (top card)
-        dealersCard1 = cards[uint8(generateRandomNumber() % 51)];
-        console.log("dealersCard1", dealersCard1.cardNumber);
+        dealersCard1 = getCard();
+        console.log(
+            "dealersCard1",
+            dealersCard1.cardNumber,
+            dealersCard1.cardValue,
+            dealersCard1.cardSuit
+        );
 
         // check for blackjack
         //check for splits
@@ -109,9 +193,10 @@ contract Blackjack is Ownable {
 
     // hit or stand
     function hit() public {
-        playersCard3 = cards[uint8(generateRandomNumber() % 51)];
+        playersCard3 = getCard();
         if (playersCard3.cardNumber > 0) {
-            playersCard4 = cards[uint8(generateRandomNumber() % 51)];
+            playersCard4 = getCard();
+            // removeCard(randomNum);
         }
         //check for bust
         bool checker = checkForBust();

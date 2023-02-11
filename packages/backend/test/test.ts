@@ -35,20 +35,24 @@ describe("BlackJack", function () {
   describe("Play", function () {
     it("Deal Cards", async function () {
       const { blackjack, owner } = await loadFixture(beforeEachFunction);
-     
+
       await blackjack.bet(2, { value: ethers.utils.parseEther("2") });
-      
+
 
       let playerHand = await blackjack.playerHand();
-      console.log("playerHand: " , playerHand)
+      console.log("playerHand: ", playerHand)
 
       let dealerHand = await blackjack.dealerHand();
-    //  console.log("dealerHand: " , dealerHand)
+      //  console.log("dealerHand: " , dealerHand)
 
       await blackjack.hit();
       await blackjack.hit();
       playerHand = await blackjack.playerHand();
-      console.log("playerHand: " , playerHand)
+      console.log("playerHand: ", playerHand)
+      //await blackjack.logUsedCardsList();
+      // for (let i = 0; i < 8; i++) {
+      //   console.log("usedCardsList: ", await blackjack.usedCardsList(i));
+      // }
       // let playerHandValue = await blackjack.playerHandValue();
       // let dealerHandValue = await blackjack.dealerHandValue();
       // let playerHandCount = await blackjack.playerHandCount();
